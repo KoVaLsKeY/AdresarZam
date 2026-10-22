@@ -42,4 +42,19 @@ public class EmployeeRestController {
 
         return employeeService.save(employee);
     }
+    @DeleteMapping("/employees/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEmployee(@PathVariable("id") Integer id) {
+
+        Employee existingEmployee = employeeService.findById(id);
+
+        if (existingEmployee == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Employee not found: " + id
+            );
+        }
+
+        employeeService.deleteById(id);
+    }
 }
