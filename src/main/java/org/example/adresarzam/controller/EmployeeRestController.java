@@ -57,4 +57,10 @@ public class EmployeeRestController {
 
         employeeService.deleteById(id);
     }
+    @PostMapping("/employees")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Employee createEmployee(@RequestBody Employee employee) {
+        employee.setId(null);
+        return employeeService.save(employee);
+    }
 }
