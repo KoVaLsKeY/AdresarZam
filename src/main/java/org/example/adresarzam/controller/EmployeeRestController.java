@@ -1,6 +1,9 @@
 package org.example.adresarzam.controller;
 
+import jakarta.validation.Valid;
 import org.example.adresarzam.entity.Employee;
+import org.example.adresarzam.response.ResponseFactory;
+import org.example.adresarzam.response.ResponseWrapper;
 import org.example.adresarzam.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,10 +17,12 @@ import java.util.List;
 public class EmployeeRestController {
 
     private EmployeeService employeeService;
+    private final ResponseFactory response;
 
     @Autowired
     public EmployeeRestController(EmployeeService employeeService) {
         this.employeeService = employeeService;
+        this.response = response;
     }
 
     @GetMapping("/employees")
@@ -25,22 +30,17 @@ public class EmployeeRestController {
         return employeeService.findAll();
     }
     @PutMapping("/employees/{id}")
-    public Employee updateEmployee(
+    public ResponseEntity<ResponseWrapper<Employee>> updateEmployee(
             @PathVariable("id") Integer id,
-            @RequestBody Employee employee) {
+            @Valid @RequestBody Employee employee) {
 
         Employee existingEmployee = employeeService.findById(id);
 
-        if (existingEmployee == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Employee not found: " + id
-            );
-        }
-
+        employeeService.findById(id);
         employee.setId(id);
+        Employee updatedEmployee = employeeService.save(employee);
+        return response.ok("Employee úspešne aktualizovaný", updatedEmployee);
 
-        return employeeService.save(employee);
     }
     @DeleteMapping("/employees/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -1,6 +1,7 @@
 package org.example.adresarzam.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
@@ -12,24 +13,44 @@ public class Employee {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "first_name")
+    @NotBlank
+    @Size(min = 2, max = 50, message = "Meno musi obsahovat 2-50 znakov")
+    @Column(name = "first_name", nullable = false,length = 50)
     private String firstName;
 
-    @Column(name = "last_name")
+    @NotBlank
+    @Size(min = 2, max = 50, message = "Priezvisko musi mat 2-50 znakov")
+    @Column(name = "last_name", nullable = false,length = 50)
     private String lastName;
 
+    @NotBlank
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    @NotBlank
+    @Size(min = 2, max = 150, message = "Email musi obsahovat 2 za 150 znakov")
+    @Email(message = "neplatny email")
+    @Pattern(
+            regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+            message = "Invalid email format"
+    )
     @Column(name = "email")
     private String email;
 
+    @NotBlank
+    @Pattern(
+            regexp = "^\\+421[0-9]{9}$",
+            message = "Phone number must be in format +421XXXXXXXXX"
+    )
     @Column(name = "phone")
     private String phone;
 
+    @NotBlank
     @Column(name = "job_title")
     private String jobTitle;
 
+    @NotBlank
+    @Min(value = 1001, message = "salary musi byt >1000")
     @Column(name = "salary")
     private Integer salary;
 
