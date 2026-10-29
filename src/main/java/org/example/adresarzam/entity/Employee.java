@@ -23,15 +23,20 @@ public class Employee {
     @Column(name = "last_name", nullable = false,length = 50)
     private String lastName;
 
-    @NotBlank
+    @NotNull(message = "Datum narodenia je povinny")
+    @Past(message = "Datum narodenia musi byt v minulosti")
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
     @NotBlank
-    @Size(min = 2, max = 150, message = "Email musi obsahovat 2 za 150 znakov")
+    @Size(min = 2, max = 150, message = "Email musi obsahovat 2-150 znakov")
     @Email(message = "neplatny email")
     @Pattern(
-            regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+            // Common ASCII dot-atom addresses: no empty parts, consecutive dots or invalid domain labels.
+            regexp = "^(?=.{1,64}@)[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+"
+                    + "(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@"
+                    + "(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+"
+                    + "[A-Za-z]{2,63}$",
             message = "Invalid email format"
     )
     @Column(name = "email")
@@ -45,15 +50,17 @@ public class Employee {
     @Column(name = "phone")
     private String phone;
 
-    @NotBlank
+    @NotBlank(message = "Pracovna pozicia je povinna")
+    @Size(max = 255, message = "Pracovna pozicia moze mat najviac 255 znakov")
     @Column(name = "job_title")
     private String jobTitle;
 
-    @NotBlank
+    @NotNull(message = "Plat je povinny")
     @Min(value = 1001, message = "salary musi byt >1000")
     @Column(name = "salary")
     private Integer salary;
 
+    @NotNull(message = "Udajte, ci ide o plny uvazok")
     @Column(name = "full_time")
     private Boolean fullTime;
 

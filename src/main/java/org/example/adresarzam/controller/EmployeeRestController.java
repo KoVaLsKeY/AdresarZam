@@ -5,62 +5,49 @@ import org.example.adresarzam.entity.Employee;
 import org.example.adresarzam.response.ResponseFactory;
 import org.example.adresarzam.response.ResponseWrapper;
 import org.example.adresarzam.service.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class EmployeeRestController {
-
-    private EmployeeService employeeService;
+    private final EmployeeService employeeService;
     private final ResponseFactory response;
 
-    @Autowired
-    public EmployeeRestController(EmployeeService employeeService) {
+    public EmployeeRestController(EmployeeService employeeService, ResponseFactory response) {
         this.employeeService = employeeService;
         this.response = response;
     }
 
     @GetMapping("/employees")
-    public List<Employee> findAll() {
-        return employeeService.findAll();
+    public ResponseEntity<ResponseWrapper<List<Employee>>> findAll() {
+        return response.ok("Zoznam zamestnancov", employeeService.findAll());
     }
+
+    @GetMapping("/employees/{id}")
+    public ResponseEntity<ResponseWrapper<Employee>> findById(@PathVariable("id") Integer id) {
+        return response.ok("Zamestnanec najdeny", employeeService.findById(id));
+    }
+
+    @PostMapping("/employees")
+    public ResponseEntity<ResponseWrapper<Employee>> createEmployee(@Valid @RequestBody Employee employee) {
+        employee.setId(null);
+        return response.created("Zamestnanec uspesne vytvoreny", employeeService.save(employee));
+    }
+
     @PutMapping("/employees/{id}")
     public ResponseEntity<ResponseWrapper<Employee>> updateEmployee(
-            @PathVariable("id") Integer id,
-            @Valid @RequestBody Employee employee) {
-
-        Employee existingEmployee = employeeService.findById(id);
-
-        employeeService.findById(id);
+            @PathVariable("id") Integer id, @Valid @RequestBody Employee employee) {
         employee.setId(id);
-        Employee updatedEmployee = employeeService.save(employee);
-        return response.ok("Employee úspešne aktualizovaný", updatedEmployee);
-
+        return response.ok("Zamestnanec uspesne aktualizovany", employeeService.save(employee));
     }
+
     @DeleteMapping("/employees/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteEmployee(@PathVariable("id") Integer id) {
-
-        Employee existingEmployee = employeeService.findById(id);
-
-        if (existingEmployee == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Employee not found: " + id
-            );
-        }
-
+    public ResponseEntity<ResponseWrapper<Void>> deleteEmployee(@PathVariable("id") Integer id) {
         employeeService.deleteById(id);
-    }
-    @PostMapping("/employees")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Employee createEmployee(@RequestBody Employee employee) {
-        employee.setId(null);
-        return employeeService.save(employee);
+        // A 204 response cannot contain the JSON body required by this assignment.
+        return response.ok("Zamestnanec uspesne vymazany");
     }
 }
